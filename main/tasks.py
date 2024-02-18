@@ -53,3 +53,9 @@ def get_subscription_days_by_price(price: int) -> int:
         if val == price:
             return key
 
+
+def renew_free_prompt():
+    for user in TelegramUser.objects.all():
+        user.free_prompt_count = 2
+        user.save()
+
