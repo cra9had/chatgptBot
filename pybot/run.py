@@ -23,8 +23,8 @@ client = AsyncOpenAI(
     base_url="https://api.proxyapi.ru/openai/v1"
 )
 
-yookassa.Configuration.configure(account_id=os.getenv("YOOKASSA_SECRET_KEY"),
-                                 secret_key=os.getenv("YOOKASSA_ACCOUNT_ID"))
+yookassa.Configuration.configure(account_id=os.getenv("YOOKASSA_ACCOUNT_ID"),
+                                 secret_key=os.getenv("YOOKASSA_SECRET_KEY"))
 redis_client = Redis.from_url("redis://localhost:6379/1")
 dp = Dispatcher(storage=RedisStorage(redis=redis_client))
 
