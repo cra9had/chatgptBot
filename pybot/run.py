@@ -17,7 +17,7 @@ from openai import AsyncOpenAI
 load_dotenv(os.path.join(f"{BASE_DIR}", ".env"))
 
 logging.basicConfig(level=logging.INFO)
-bot = Bot(token="6439705103:AAEaQcDFeV0VSr1ncPOxLWQzs_zh52v5-M0")
+bot = Bot(token=os.getenv("BOT_API_KEY"))
 client = AsyncOpenAI(
     api_key=os.getenv("CHATGPT_API_KEY"),
     base_url="https://api.proxyapi.ru/openai/v1"
