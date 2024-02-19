@@ -22,7 +22,7 @@ class TelegramUser(models.Model):
     telegram_id = models.BigIntegerField(verbose_name="ID телеграм")
     telegram_username = models.CharField(verbose_name="Username телеграм", max_length=64, null=True, blank=True)
     free_prompt_count = models.IntegerField(verbose_name="Бесплатных промптов сегодня", default=5)
-    payment_method_id = models.CharField(verbose_name="Идентификатор для автоплатежа", max_length=1024, default="")
+    payment_method_id = models.CharField(verbose_name="Идентификатор для автоплатежа", max_length=1024, default="", blank=True)
     message_history = ArrayField(
         models.JSONField(verbose_name="История промптов"),
         verbose_name="История промптов",
