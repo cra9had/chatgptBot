@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timedelta
+from typing import Union
 
 import django
 from asgiref.sync import sync_to_async
@@ -45,7 +46,16 @@ def _get_user_by_telegram_id(telegram_id: int) -> TelegramUser:
 @sync_to_async
 def check_if_user_subscribed(telegram_id: int) -> bool:
     user = _get_user_by_telegram_id(telegram_id)
-    return Subscription.objects.filter(user=user).exists()
+    return Subscription.objects.filter(user=user, expired=False).exists()
+
+
+@sync_to_async
+def get_user_subscription(telegram_id: int) -> Union[None, Subscription]:
+    user = TelegramUser.objects.get(telegram_id=telegram_id)
+    if not (Subscription.objects.filter(user=user, expired=False).exists()):
+        return None
+    else:
+        return Subscription.objects.filter(user=user, expired=False).first()
 
 
 @sync_to_async

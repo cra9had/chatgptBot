@@ -1,5 +1,5 @@
 from pybot.database import get_start_prompts
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
 
 
 async def get_main_keyboard() -> InlineKeyboardMarkup:
@@ -15,6 +15,14 @@ async def not_enough_trial_prompts() -> InlineKeyboardMarkup:
         [InlineKeyboardButton(text="Оформить подписку", callback_data="back_to_subscriptions")]
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+async def get_dialog_keyboard() -> ReplyKeyboardMarkup:
+    buttons = [
+        [KeyboardButton(text="💬 Новый диалог"), KeyboardButton(text="💎 Premium подписка")],
+        [KeyboardButton(text="👤 Личный кабинет"), KeyboardButton(text="🆘 Поддержка")],
+    ]
+    return ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
 
 
 async def subscription_keyboard() -> InlineKeyboardMarkup:

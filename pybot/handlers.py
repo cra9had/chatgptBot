@@ -4,7 +4,7 @@ from aiogram.filters.command import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram import Bot
-from pybot.keyboards import get_main_keyboard, subscription_keyboard, payment_keyboard
+from pybot.keyboards import get_main_keyboard, subscription_keyboard, payment_keyboard, get_dialog_keyboard
 from openai import AsyncOpenAI
 import database
 from pybot.utils import (process_dialog, get_subscription_payment,
@@ -14,6 +14,7 @@ router = Router()
 
 
 @router.message(CommandStart())
+@router.message(F.text == "💬 Новый диалог")
 async def cmd_start(message: types.Message):
     await database.create_user(
         message.chat.id,
@@ -29,13 +30,14 @@ async def start_dialog(call: types.CallbackQuery, state: FSMContext):
     prompt = await database.get_start_prompt_by_id(prompt_id)
     await database.clear_prompt_history(call.message.chat.id)
     await call.answer()
-    await call.message.answer(prompt.bot_answer)
+    await call.message.answer(prompt.bot_answer, reply_markup=await get_dialog_keyboard())
     await state.set_data({
         "prompt_id": prompt_id
     })
 
 
 @router.message(Command("subscribe"))
+@router.message(F.text == "💎 Premium подписка")
 async def subscription_handler(message: Message):
     await message.answer("""
 Выбери подходящий тариф:
@@ -67,6 +69,24 @@ async def check_is_paid(call: CallbackQuery):
         await call.message.answer("Подписка успешно куплена")
     else:
         await call.answer("Сначала оплати подписку")
+
+
+@router.message(F.text == "👤 Личный кабинет")
+async def dashboard(message: Message):
+    user = await database.get_user_by_telegram_id(message.chat.id)
+    subscription = await database.get_user_subscription(message.chat.id)
+    return await message.answer(f"""
+🧑🏻‍💻 Личный кабинет
+
+🆔 Ваш ID: {message.chat.id}
+📅 Дата регистрации: {user.created_at.strftime("%d %B %Y г")}
+💎 Premium статус: {'нет' if not subscription else subscription.end_at.strftime("%d %B %Y г")}
+""")
+
+
+@router.message(F.text == "🆘 Поддержка")
+async def support(message: Message):
+    await message.answer("Поддержка")
 
 
 @router.message()

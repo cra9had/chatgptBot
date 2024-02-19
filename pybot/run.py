@@ -3,6 +3,7 @@ import logging
 import sys
 import os
 import yookassa
+import locale
 from pathlib import Path
 BASE_DIR = str(Path(__file__).resolve().parent.parent)
 sys.path.append(BASE_DIR)
@@ -15,7 +16,7 @@ from openai import AsyncOpenAI
 
 
 load_dotenv(os.path.join(f"{BASE_DIR}", ".env"))
-
+locale.setlocale(locale.LC_TIME, 'ru_RU.UTF-8')
 logging.basicConfig(level=logging.INFO)
 bot = Bot(token=os.getenv("BOT_API_KEY"))
 client = AsyncOpenAI(
