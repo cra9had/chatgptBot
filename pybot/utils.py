@@ -12,8 +12,8 @@ from main.models import TelegramUser
 
 
 TARIFFS = {
-    1: 50,
-    7: 150,
+    1: 30,
+    7: 175,
     30: 390
 }
 
@@ -62,7 +62,7 @@ async def process_dialog(message: types.Message, prompt_id: int, openai: AsyncOp
 
 async def answer_task(openai: AsyncOpenAI, prompt: list[dict], message: types.Message, bot: Bot) -> None:
     stream = await openai.chat.completions.create(
-        model="gpt-3.5-turbo-0125",
+        model="gpt-4-0125-preview",
         messages=prompt,
         stream=True,
     )

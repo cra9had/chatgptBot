@@ -18,8 +18,8 @@ def renew_subscription(user_id: int):
     subscription.save()
     user = TelegramUser.objects.get(pk=user_id)
     if user.payment_method_id:
-        yookassa.Configuration.configure(account_id="335627",
-                                         secret_key="test_pUPQfB_8TMktgDuw_xtbkWtwmxV_SpT2_ylO-t6YEJQ")
+        yookassa.Configuration.configure(account_id="332644",
+                                         secret_key="live_9-TYy7HIn0b5L5bEfc5qGw0eFDRZ1HZpnyoKUxIdPiE")
         payment = Payment.create({
             "amount": {
                 "value": f"{TARIFFS[subscription.days]}.00",
@@ -36,8 +36,8 @@ def renew_subscription(user_id: int):
 
 
 def check_payment(payment_id: str, user_pk: int):
-    yookassa.Configuration.configure(account_id="335627",
-                                     secret_key="test_pUPQfB_8TMktgDuw_xtbkWtwmxV_SpT2_ylO-t6YEJQ")
+    yookassa.Configuration.configure(account_id="332644",
+                                     secret_key="live_9-TYy7HIn0b5L5bEfc5qGw0eFDRZ1HZpnyoKUxIdPiE")
     payment = Payment.find_one(payment_id)
     days = get_subscription_days_by_price(round(float(payment.amount.value)))
     if payment.paid:

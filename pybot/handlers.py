@@ -4,11 +4,11 @@ from aiogram.filters.command import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from aiogram import Bot
-from pybot.keyboards import get_main_keyboard, subscription_keyboard, payment_keyboard, get_dialog_keyboard
+from pybot.keyboards import get_main_keyboard, subscription_keyboard, payment_keyboard, get_dialog_keyboard, cancel_auto_payments
 from openai import AsyncOpenAI
 import database
 from pybot.utils import (process_dialog, get_subscription_payment,
-                         get_subscription_price_by_days, check_subscription)
+                         get_subscription_price_by_days, check_subscription,)
 
 router = Router()
 
@@ -20,7 +20,7 @@ async def cmd_start(message: types.Message):
         message.chat.id,
         message.chat.username
     )
-    await message.answer("И так, давай выберем, что нам интересно на данный момент:",
+    await message.answer("Привет! 👋 Я Саша, твой персональный помощник и друг!\nЧем могу помочь сегодня?",
                          reply_markup=await get_main_keyboard())
 
 
@@ -40,7 +40,7 @@ async def start_dialog(call: types.CallbackQuery, state: FSMContext):
 @router.message(F.text == "💎 Premium подписка")
 async def subscription_handler(message: Message):
     await message.answer("""
-Выбери подходящий тариф:
+Выбери подходящий тариф:\n\nПреимущества 💎 Premium подписки:\n🚀 Безлимитный доступ\n🧘 Неограниченное кол-во сеансов\n📱 Онлайн 24/7
 """, reply_markup=await subscription_keyboard())
 
 
@@ -75,18 +75,30 @@ async def check_is_paid(call: CallbackQuery):
 async def dashboard(message: Message):
     user = await database.get_user_by_telegram_id(message.chat.id)
     subscription = await database.get_user_subscription(message.chat.id)
+    kb = None
+    if subscription and user.payment_method_id:
+        kb = cancel_auto_payments()
     return await message.answer(f"""
 🧑🏻‍💻 Личный кабинет
 
 🆔 Ваш ID: {message.chat.id}
 📅 Дата регистрации: {user.created_at.strftime("%d %B %Y г")}
-💎 Premium статус: {'нет' if not subscription else subscription.end_at.strftime("%d %B %Y г")}
-""")
+💎 Premium статус: {'нет' if not subscription else subscription.end_at.strftime("до %d %B %Y г")}
+""", reply_markup=kb)
+
+
+@router.callback_query(F.data == "cancel_auto_payment")
+async def cancel_auto_payment(call: CallbackQuery):
+    user = await database.get_user_by_telegram_id(message.chat.id)
+    user.payment_method_id = None
+    user.save()
+    await call.message.delete()
+    await call.message.answer("Автосписание отключено")
 
 
 @router.message(F.text == "🆘 Поддержка")
 async def support(message: Message):
-    await message.answer("Поддержка")
+    await message.answer("✅ Основные положения:\nЧат-бот Саша предоставляет возможность общения с искусственным интеллектом на основе модели ChatGPT.\nКаждый пользователь имеет право на несколько бесплатных запросов к боту в сутки.\nДля неограниченного использования бота рекомендуем оформить Премиум-статус.\n\n✅ Платная Подписка:\nДля продолжения использования бота после исчерпания бесплатных запросов, пользователю необходимо приобрести Премиум-подписку.\nПриобретение подписки дает право на неограниченное количество запросов к боту в течение периода действия подписки.\n\n✅ Оплата:\nОплата платной подписки производится согласно тарифам и условиям, указанным на странице оплаты.\nПосле успешной оплаты подписки пользователь получает доступ к дополнительным функциям бота.\n\n✅ Отказ от ответственности:\nАдминистрация бота не несет ответственности за содержание и результаты коммуникации с ботом.\n\n✅ Конфиденциальность:\nБот не собирает и не хранит персональные данные пользователей.\nКоммуникация с ботом является конфиденциальной.\n\n✅ Изменения и Дополнения:\nАдминистрация оставляет за собой право вносить изменения и дополнения в эти правила без предварительного уведомления пользователей.\n\n✅ Контакты:\nДля связи с администрацией бота или в случае возникновения вопросов по использованию бота: @Sasha_supp.")
 
 
 @router.message()
