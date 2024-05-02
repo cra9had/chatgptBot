@@ -89,8 +89,8 @@ async def dashboard(message: Message):
 
 @router.callback_query(F.data == "cancel_auto_payment")
 async def cancel_auto_payment(call: CallbackQuery):
-    user = await database.get_user_by_telegram_id(message.chat.id)
-    user.payment_method_id = None
+    user = await database.get_user_by_telegram_id(call.message.chat.id)
+    user.payment_method_id = ""
     user.save()
     await call.message.delete()
     await call.message.answer("Автосписание отключено")
